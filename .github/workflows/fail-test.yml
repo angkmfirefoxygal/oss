@@ -1,18 +1,25 @@
-name: Success Test
+name: CI/CD Workflow
 
 on:
-  workflow_dispatch:   # 버튼 눌러서 수동 실행 가능
-  push:                # main 브랜치에 push되면 실행
-    branches: [ "main" ]
+  push:
+    branches: ['main']
+  pull_request:
+    types: ['reopened']
+    branches: ['main']
 
-jobs:
-  success-job:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+build:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Run successful step
-        run: |
-          echo "This step will succeed"
-          exit 0
+job-2:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
