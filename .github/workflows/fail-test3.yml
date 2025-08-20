@@ -1,0 +1,69 @@
+name: GitHub Actions Worflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # 1) npm: 존재하지 않는 스크립트 실행 → npm ERR! Missing script
+  npm-missing-script:
+    name: NPM missing script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Show npm version
+        run: npm -v
+      - name: Run a non-existent npm script
+        run: npm run not-exist  # => npm ERR! Missing script
+
+  # 2) Python: AssertionError → Traceback
+  python-assertion-fail:
+    name: Python AssertionError
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run failing python
+        run: |
+          python - <<'PY'
+          assert False, "Intentional failure for demo"
+          PY
+
+  # 3) 파일시스템 권한 문제 → Permission denied
+  fs-permission-denied:
+    name: Filesystem Permission denied
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create root-owned directory and try to write
+        run: |
+          mkdir locked
+          sudo chown root:root locked
+          sudo chmod 000 locked
+          echo "try to write" > locked/file.txt   # => Permission denied
+
+  # 4) 명령어 자체가 없음 → command not found
+  cmd-not-found:
+    name: Command not found
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run non-existent binary
+        run: not_a_command_here  # => bash: not_a_command_here: command not found
+
+  # 5) Step 타임아웃 → Context: Step timeout-minutes 사용
+  step-timeout:
+    name: Step timeout
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sleep long
+        timeout-minutes: 1
+        run: sleep 120  # => Step timed out after 1 minute
+
+  # 6) 네트워크/DNS 실패 → curl: Could not resolve host
+  network-dns-fail:
+    name: Network DNS fail
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl invalid TLD
+        run: curl -sS --fail https://definitely-
