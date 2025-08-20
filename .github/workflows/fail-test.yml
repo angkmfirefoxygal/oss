@@ -1,25 +1,19 @@
-name: CI/CD Workflow
+name: CI/CD Workkkkkkkkkkflow
 
 on:
   push:
     branches: ['main']
   pull_request:
-    types: ['reopened']
+    types: ['synchronize']
     branches: ['main']
 
-jobs:   
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-      - name: Install dependencies
-        run: npm ci
+build:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+    - name: Install dependencies
+      run: npm ci
 
-  job-2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
