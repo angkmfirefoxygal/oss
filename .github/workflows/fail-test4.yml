@@ -1,0 +1,16 @@
+name: Unknwon Network Error Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+    
+  # 6) 네트워크/DNS 실패 → curl: Could not resolve host
+  network-dns-fail:
+    name: Network DNS fail
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl invalid TLD
+        run: curl -sS --fail https://definitely-

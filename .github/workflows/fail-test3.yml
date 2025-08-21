@@ -31,18 +31,6 @@ jobs:
           assert False, "Intentional failure for demo"
           PY
 
-  # 3) 파일시스템 권한 문제 → Permission denied
-  fs-permission-denied:
-    name: Filesystem Permission denied
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create root-owned directory and try to write
-        run: |
-          mkdir locked
-          sudo chown root:root locked
-          sudo chmod 000 locked
-          echo "try to write" > locked/file.txt   # => Permission denied
-
   # 4) 명령어 자체가 없음 → command not found
   cmd-not-found:
     name: Command not found
