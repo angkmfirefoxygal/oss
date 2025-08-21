@@ -7,13 +7,28 @@ on:
     types: ['synchronize']
     branches: ['main']
 
-build:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-    - name: Install dependencies
-      run: npm ci
+    
+jobs:
+  # 1) npm: 존재하지 않는 스크립트 실행 → npm ERR! Missing script
+  npm-missing-script:
+    name: NPM missing script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Show npm version
+        run: npm -v
+      - name: Run a non-existent npm script
+        run: npm run not-exist  # => npm ERR! Missing script
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm ci
 
