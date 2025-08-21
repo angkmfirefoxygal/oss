@@ -1,11 +1,11 @@
-name: CI/CD Workflow
+name: CI/CD Workflow for OSS project
 
 on:
   push:
     branches: ['main']
 
 build:
-  runs-on: ubuntu-latest
+  runs-on: npm run scripts
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -13,19 +13,12 @@ build:
       uses: actions/setup-node@v4
     - name: Install dependencies
       run: npm ci
-jobs:
-  # 1) npm: 존재하지 않는 스크립트 실행 → npm ERR! Missing script
-  npm-missing-script:
-    name: NPM missing script
+
+#6) 네트워크/DNS 실패 -> curl : Could not resolve host
+  network-dns-fail:
+    name: Network DNS fail
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Show npm version
-        run: npm -v
-      - name: Run a non-existent npm script
-        run: npm run not-exist  # => npm ERR! Missing script
-
+      - name: Curl invalid TLD
+        run: curl -sS --fail https://definitely-
 
