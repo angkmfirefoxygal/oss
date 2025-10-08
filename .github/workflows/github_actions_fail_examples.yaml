@@ -1,0 +1,107 @@
+name: GitHub Actions Fail Examples
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  # 1) Silent exit (아무 문제 없어 보이지만 실제 로직은 안 돌아감) -> ✅ success
+  silent_exit_success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start and exit 0
+        run: |
+          echo "[silent] start"
+          exit 0
+          echo "this never runs"
+
+  # 2) try/catch로 에러 삼킴 -> ✅ success (에러 로그 없음)
+  swallow_error_success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Swallow error in node
+        run: node -e "try { throw new Error('boom'); } catch (e) { console.log('ignored'); }"
+
+  # 3) Timeout (시간 초과) -> ❌ failed (짧은 로그: operation was canceled)
+  timeout_fail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Sleep longer than timeout
+        run: sleep 90
+
+  # 4) User cancel (수동 취소) -> ⏹ cancelled (UI에서 Cancel 눌러 확인)
+  manual_cancel_demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Long sleep (cancel this run in the UI)
+        run: sleep 600
+
+  # 5) OOM / Memory exceeded -> ❌ failed (exit code 137, "Killed")
+  oom_fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Allocate memory until killed
+        run: node -e "let x=[]; while(true){ x.push(Buffer.alloc(10**6)); }"
+
+  # 6) Condition skip (조건 불일치로 step이 스킵) -> ✅ success (실제 로직 미실행)
+  condition_skip_success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only run on tag (most pushes will skip)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo "I run only on tag"
+      - name: Always show that job completed
+        run: echo "job done (but main step may have been skipped)"
+
+  # 7) Exit code swallow (실패를 성공으로 위장) -> ✅ success (로그에 error 흔적은 있음)
+  exit_code_swallowed_success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: A failing command that is swallowed
+        shell: bash
+        run: |
+          echo "start"
+          (exit 1) || true
+          echo "end"
+
+  # 8) Disk quota exceeded (용량 초과) -> ❌ failed
+  disk_full_fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fill disk intentionally
+        run: |
+          echo "Filling disk…"
+          dd if=/dev/zero of=bigfile bs=1M count=20000 status=progress || true
+          sync
+          df -h
+          # dd가 중간에 실패하면 exit 1로 처리
+          test -f bigfile && echo "file exists (may be partial)"
+          # 강제로 실패로 기록
+          exit 1
+
+  # 9) Missing secret/token (권한/시크릿 누락) -> ❌ failed (짧은 401/403류 메시지)
+  missing_secret_fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call GitHub API with missing token
+        run: |
+          set -x
+          curl -s -o /dev/stderr -w "%{http_code}\n" \
+            -H "Authorization: Bearer ${{ secrets.MISSING_TOKEN }}" \
+            https://api.github.com/user | tee status.txt
+          code=$(tail -n1 status.txt)
+          # 200이 아니면 실패 처리
+          if [ "$code" != "200" ]; then
+            echo "API call failed with HTTP $code"
+            exit 1
+          fi
+
+  # 10) Minimal log but failed (로그가 매우 적어 분석 곤란) -> ❌ failed (정보 부족)
+  minimal_log_fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print very little then fail
+        run: |
+          echo "few logs"
+          exit 1
