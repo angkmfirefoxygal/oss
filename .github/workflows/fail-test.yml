@@ -7,27 +7,24 @@ on:
     types: ['synchronize']
     branches: ['main']
 
-# 6) 네트워크/DNS 실패 → curl: Could not resolve host
+jobs:
+  # 6️⃣ 네트워크/DNS 실패 → curl: Could not resolve host
   network-dns-fail:
     name: Network DNS fail
     runs-on: ubuntu-latest
     steps:
       - name: Curl invalid TLD
-        run: curl -sS --fail https://definitely-
+        run: |
+          echo "Testing invalid domain"
+          # 일부러 존재하지 않는 도메인 호출 → DNS 실패 유발
+          curl -sS --fail https://definitely-not-a-real-domain.zzz
 
-
-build:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-    - name: Install dependencies
-      run: npm ci
-
-
-
-
-
-
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm ci
