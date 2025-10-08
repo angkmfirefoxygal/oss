@@ -10,6 +10,9 @@ import { printToOutput } from './output/printToOutput';
 
 export function activate(context: vscode.ExtensionContext) {
 
+  // 의도적인 TypeScript 에러 1: 존재하지 않는 타입 사용
+  const invalidVariable: NonExistentType = "test";
+
   // token 삭제하는 기능인데, 일단 테스트 해보고 뺄 수도? ////////
   const deleteToken = vscode.commands.registerCommand('extension.deleteGitHubToken', async () => {
       await deleteGitHubToken(context);
@@ -50,7 +53,9 @@ export function activate(context: vscode.ExtensionContext) {
       placeHolder: 'LLM 프롬프트에 포함할 로그 범위 선택'
     });
 
-    
+    // 의도적인 TypeScript 에러 2: 타입 불일치
+    const numberValue: number = "this should be a number";
+
     const logMode = mode === '전체 로그' ? 'all' : 'error';
     
     console.log(`[5] 📄 로그 추출 방식: ${logMode}`);

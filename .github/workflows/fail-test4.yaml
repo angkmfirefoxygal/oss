@@ -105,3 +105,25 @@ jobs:
         run: |
           echo "few logs"
           exit 1
+
+  # 11) TypeScript Build & Lint Failure (실제 프로젝트 빌드 실패) -> ❌ failed
+  build_and_lint_failure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run TypeScript build (will fail due to intentional errors)
+        run: npm run build
+
+      - name: Run linter (may also fail)
+        if: always()
+        run: npm run lint || echo "Lint failed"

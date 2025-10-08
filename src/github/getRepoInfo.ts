@@ -4,6 +4,10 @@ import simpleGit from 'simple-git';
 
 export async function getRepoInfo(): Promise<{ owner: string; repo: string } | null> {
   const folderUri = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+  // 의도적인 TypeScript 에러 3: 존재하지 않는 메서드 호출
+  const result = folderUri.nonExistentMethod();
+
   if (!folderUri) {
     console.log('[❌] 워크스페이스 폴더 없음');
     return null;
