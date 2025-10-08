@@ -1,0 +1,40 @@
+name: 4. Code Error Tracking Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  code_error_test:
+    name: 💥 Source Code Error Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install TypeScript
+        run: |
+          npm install -g typescript ts-node
+          echo "✅ TypeScript installed successfully"
+
+      - name: Display file to be executed
+        run: |
+          echo "📄 Contents of buggy module:"
+          cat src/test/buggyModule.ts
+          echo ""
+          echo "🎯 This file will cause runtime errors in the next step"
+
+      - name: Run buggy TypeScript code
+        run: |
+          echo "🚀 Executing buggy code from src/test/buggyModule.ts..."
+          echo ""
+          ts-node src/test/buggyModule.ts
+
+      - name: This step should never run
+        if: success()
+        run: |
+          echo "❌ If you see this, the test failed - errors were not caught!"
