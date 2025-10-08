@@ -1,46 +1,18 @@
-name: Fail Patterns Demo
+name: 2. Timeout Failure Demo
 
 on:
-  workflow_dispatch:  # 수동 실행
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  # 1) npm: 존재하지 않는 스크립트 실행 → npm ERR! missing script
-  npm-missing-script:
-    name: NPM missing script
+  timeout_failure_demo:
+    name: ⏱️ Timeout Test (1 Minute)
     runs-on: ubuntu-latest
+    # Job 전체 타임아웃을 1분(60초)으로 설정
+    timeout-minutes: 1 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-      # Node 버전은 적당히 최신으로
-          node-version: '20'
-      - name: Show npm version
-        run: npm -v
-      - name: Run a non-existent npm script
-        run: npm run not-exist   # => npm ERR! Missing script: "not-exist"
-
-  # 2) Python: AssertionError로 실패 → Traceback 로그
-  python-assertion-fail:
-    name: Python AssertionError
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run failing python
+      - name: Sleep longer than timeout
         run: |
-          python - <<'PY'
-          assert False, "Intentional failure for demo"
-          PY
-      # 위 스텝에서 Traceback과 AssertionError가 출력됨
-
-  # 3) 파일시스템 권한 문제 → Permission denied
-  fs-permission-denied:
-    name: Filesystem Permission denied
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create root-owned directory and try to write
-        run: |
-          mkdir locked
-          sudo chown root:root locked
-          sudo chmod 000 locked
-          echo "try to write" > locked/file.txt   # => Permission denied
+          echo "Starting a 120 second process..."
+          # 1분 타임아웃을 초과하는 2분 동안 대기합니다.
+          sleep 120s
+          echo "Process finished (This line should NOT be reached and will be cancelled)."

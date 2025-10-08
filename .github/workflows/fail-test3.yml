@@ -1,57 +1,20 @@
-name: GitHub Actions Worflow
+name: 3. Minimal Log Failure (Exit Code) Demo
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
 
 jobs:
-  # 1) npm: 존재하지 않는 스크립트 실행 → npm ERR! Missing script
-  npm-missing-script:
-    name: NPM missing script
+  minimal_log_failure_demo:
+    name: 🤫 Exit Code Failure Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Show npm version
-        run: npm -v
-      - name: Run a non-existent npm script
-        run: npm run not-exist  # => npm ERR! Missing script
-
-  # 2) Python: AssertionError → Traceback
-  python-assertion-fail:
-    name: Python AssertionError
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run failing python
+      - name: Suppress error log and fail with exit code
         run: |
-          python - <<'PY'
-          assert False, "Intentional failure for demo"
-          PY
-
-  # 4) 명령어 자체가 없음 → command not found
-  cmd-not-found:
-    name: Command not found
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run non-existent binary
-        run: not_a_command_here  # => bash: not_a_command_here: command not found
-
-  # 5) Step 타임아웃 → Context: Step timeout-minutes 사용
-  step-timeout:
-    name: Step timeout
-    runs-on: ubuntu-latest
-    steps:
-      - name: Sleep long
-        timeout-minutes: 1
-        run: sleep 120  # => Step timed out after 1 minute
-
-  # 6) 네트워크/DNS 실패 → curl: Could not resolve host
-  network-dns-fail:
-    name: Network DNS fail
-    runs-on: ubuntu-latest
-    steps:
-      - name: Curl invalid TLD
-        run: curl -sS --fail https://definitely-
+          echo "Testing intentional failure without verbose logging..."
+          
+          # 존재하지 않는 명령어를 호출하여 에러를 발생시키지만,
+          # 2> /dev/null 명령어로 표준 에러(stderr)를 무시(로그 삭제)합니다.
+          ls /definitely-not-here 2> /dev/null
+          
+          # 의도적으로 1이라는 종료 코드를 반환하여 Job을 실패시킵니다.
+          exit 1
