@@ -1,6 +1,9 @@
 name: 4. Code Error Tracking Test
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
